@@ -50,7 +50,7 @@ const App = () => {
                   } else if (route.name === 'Notifications') {
                     iconName = focused ? 'bell' : 'bell-outline';
                   } else if (route.name === 'Menu') {
-                    iconName = focused ? 'cog' : 'cog-outline';
+                    iconName = focused ? 'dots-grid' : 'dots-grid';
                   }
 
                   return <Icon name={iconName} size={size} color={color} />;
