@@ -1,117 +1,92 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
+/* eslint-disable react/no-unstable-nested-components */
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+// Import screens
+import ActivitiesScreen from './src/screens/ActivitiesScreen';
+import MenuScreen from './src/screens/MenuScreen';
+import NotificationsScreen from './src/screens/NotificationsScreen';
+import { StyleSheet } from 'react-native';
+import BookingsScreen from './src/screens/BookingsScreen';
+import { colors } from './src/utils/colors';
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+// Initialize React Query
+const queryClient = new QueryClient();
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+// Create bottom tab navigator
+const BottomBar = createBottomTabNavigator();
+
+// Custom theme for React Native Paper
+const theme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: '#6200ee',
+    accent: '#03dac4',
+  },
+};
+
+const App = () => {
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
+    <SafeAreaProvider>
+      <QueryClientProvider client={queryClient}>
+        <PaperProvider theme={theme}>
+          <NavigationContainer>
+            <BottomBar.Navigator
+              initialRouteName="Activities"
+              screenOptions={({ route }) => ({
+                tabBarIcon: ({ focused, color, size }) => {
+                  let iconName;
+
+                  if (route.name === 'Bookings') {
+                    iconName = focused ? 'home' : 'home-outline';
+                  } else if (route.name === 'Activities') {
+                    iconName = focused ? 'calendar-range' : 'calendar-range-outline';
+                  } else if (route.name === 'Notifications') {
+                    iconName = focused ? 'bell' : 'bell-outline';
+                  } else if (route.name === 'Menu') {
+                    iconName = focused ? 'cog' : 'cog-outline';
+                  }
+
+                  return <Icon name={iconName} size={size} color={color} />;
+                },
+                tabBarActiveTintColor: colors.brand,
+                tabBarInactiveTintColor: 'gray',
+                headerShown: false,
+                tabBarStyle: styles.tabBarStyle,
+              })}>
+
+              <BottomBar.Screen name="Bookings" component={BookingsScreen} />
+              <BottomBar.Screen name="Activities" component={ActivitiesScreen} />
+              <BottomBar.Screen name="Notifications" component={NotificationsScreen} />
+              <BottomBar.Screen name="Menu" component={MenuScreen} />
+
+            </BottomBar.Navigator>
+          </NavigationContainer>
+        </PaperProvider>
+      </QueryClientProvider>
+    </SafeAreaProvider>
   );
-}
-
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-}
+};
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
+  tabBarStyle: {
+    position: 'absolute', // To make it float a bit
+    backgroundColor: '#ffffff', // Adjust the background color
+    borderTopLeftRadius: 20, // Curved Top Left
+    borderTopRightRadius: 20, // Curved Top Right
+    height: 60, // Adjust height if needed
+    borderTopWidth: 0, // Remove the default top border
+    elevation: 5, // Add shadow for Android
+    shadowColor: '#000', // iOS Shadow
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
 });
 
